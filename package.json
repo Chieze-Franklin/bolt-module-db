@@ -1,0 +1,41 @@
+{
+  "name": "bolt-module-db",
+  "version": "1.0.0",
+  "description": "Module to install /api/db routes in Bolt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chieze-Franklin/bolt-module-db"
+  },
+  "author": "Chieze Franklin",
+  "bugs": {
+    "url": "https://github.com/Chieze-Franklin/bolt-module-db/issues"
+  },
+  "dependencies": {
+    "bolt-internal-checks": "*",
+    "bolt-internal-config": "*",
+    "bolt-internal-defs": "*",
+    "bolt-internal-errors": "*",
+    "bolt-internal-get-routes": "*",
+    "bolt-internal-models": "*",
+    "bolt-internal-schemata": "*",
+    "bolt-internal-setup": "*",
+    "bolt-internal-utils": "*"
+  },
+  "keywords": [
+    "bolt",
+    "module",
+    "db",
+    "bolt-module-db"
+  ],
+  "bolt": {
+    "displayName": "Bolt DB Module",
+    "module": true,
+    "target": 0.2,
+    "routers": {
+      "bolt-api-db": {
+        "main": "routers/api-db",
+        "root": "/api/db"
+      }
+    }
+  }
+}

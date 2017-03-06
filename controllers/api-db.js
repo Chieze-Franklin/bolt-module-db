@@ -9,7 +9,7 @@ var superagent = require('superagent');
 
 var __dbOp = function(options, callback){
 	var MongoClient = mongodb.MongoClient;
-	MongoClient.connect('mongodb://localhost:' + config.getDbPort() + '/' + options.db, function(error, db) {
+	MongoClient.connect('mongodb://' + config.getDbHost()+ ':' + config.getDbPort() + '/' + options.db, function(error, db) {
 		
 		if (options.operation == "dropdb") {
 			//db.drop();

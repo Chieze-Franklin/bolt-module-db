@@ -7,10 +7,10 @@ var apiDbCtrlr = require('../controllers/api-db');
 var router = express.Router();
 
 //drops db
-router.post('/drop', checksCtrlr.forDbAccess, checksCtrlr.getDbName, apiDbCtrlr.postDrop);
+router.post('/drop', checksCtrlr.getDbName, apiDbCtrlr.postDrop);
 
 //drops
-router.post('/:collection/drop', checksCtrlr.forDbAccess, checksCtrlr.getDbName, apiDbCtrlr.postCollectionDrop);
+router.post('/:collection/drop', checksCtrlr.forDbOwner, checksCtrlr.getDbName, apiDbCtrlr.postCollectionDrop);
 
 //finds all
 router.post('/:collection/find', checksCtrlr.forDbAccess, checksCtrlr.getDbName, apiDbCtrlr.postCollectionFind);

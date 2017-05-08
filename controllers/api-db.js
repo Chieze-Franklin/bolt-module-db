@@ -1,5 +1,6 @@
 var config = require("bolt-internal-config");
 var errors = require("bolt-internal-errors");
+var models = require("bolt-internal-models");
 var utils = require("bolt-internal-utils");
 
 var fs = require('fs');
@@ -9,60 +10,90 @@ var superagent = require('superagent');
 
 var __dbOp = function(options, callback){
 	var MongoClient = mongodb.MongoClient;
-	MongoClient.connect('mongodb://' + config.getDbHost()+ ':' + config.getDbPort() + '/' + options.db, function(error, db) {
-		
-		if (options.operation == "dropdb") {
-			//db.drop();
-			db.dropDatabase(function(err, result){
-				callback(err, result);
-				db.close();
-			});
-		}
-		else if (options.operation == "drop") {
-			var collection = db.collection(options.collection);
-			collection.find({}, function(err, docs){
-				collection.drop(function(err2){
-					docs.toArray(callback);
-					db.close();
+	MongoClient.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI || process.env.BOLT_DB_URI, function(error, db) {
+		if (!utils.Misc.isNullOrUndefined(db)) {
+			if (options.operation == "dropdb") {
+				models.collection.find({ app: options.db }, function(collError, colls){
+					if (!utils.Misc.isNullOrUndefined(colls)) {
+						colls.forEach(function (coll) {
+							var collectionFullname = options.db + '-' + coll.name;
+							var collection = db.collection(collectionFullname);
+							collection.drop(function (err, result) {
+								//
+							});
+						});
+					}
+
+					callback(null, true);
 				});
-			});
+			}
+			else {
+				var collectionFullname = options.db + '-' + options.collection;
+
+				if (options.operation == "drop") {
+					var collection = db.collection(collectionFullname);
+					collection.drop(function(err, result){
+						callback(err, result);
+						db.close();
+					});
+				}
+				else if (options.operation == "find") {
+					var collection = db.collection(collectionFullname);
+					collection.find(options.object, options.map, function(err, docs){
+						docs.toArray(callback);
+						db.close();
+					});
+				}
+				else if (options.operation == "findone") {
+					var collection = db.collection(collectionFullname);
+					collection.findOne(options.object, options.map, function(err, doc){
+						callback(err, doc);
+						db.close();
+					});
+				}
+				else if (options.operation == "insert") {
+					var collection = db.collection(collectionFullname);
+					collection.insert(options.object, function(err, doc){
+						callback(err, doc);
+						db.close();
+					});
+				}
+				else if (options.operation == "remove") {
+					var collection = db.collection(collectionFullname);
+					/*
+					collection.find(options.object, function(err, docs){
+						//store the array in a temp array before calling 'remove' cuz 'remove' will clear 'docs'
+						var tempArray = [];
+						function tempCallback(tempErr, tempDocs) {
+							tempArray = tempDocs;
+						}
+						docs.toArray(tempCallback);
+						collection.remove(options.object, function(err2, result){
+							callback(err2, tempArray);
+							//originally the above line was: docs.toArray(callback);
+							//but I noticed the array was always empty (the call to 'remove' was clearing the array produced by 'find')
+							//so, now I store that array in a temp array (tempArray) before calling remove
+							db.close();
+						});
+					});
+					*/
+
+					collection.remove(options.object, function(err, result){
+						callback(err, result.result);
+						db.close();
+					});
+				}
+				else if (options.operation == "update") {
+					var collection = db.collection(collectionFullname);
+					collection.update(options.object, options.values, options.options, function(err, doc){
+						callback(err, doc);
+						db.close();
+					});
+				}
+			}
 		}
-		else if (options.operation == "find") {
-			var collection = db.collection(options.collection);
-			collection.find(options.object, options.map, function(err, docs){
-				docs.toArray(callback);
-				db.close();
-			});
-		}
-		else if (options.operation == "findone") {
-			var collection = db.collection(options.collection);
-			collection.findOne(options.object, options.map, function(err, doc){
-				callback(err, doc);
-				db.close();
-			});
-		}
-		else if (options.operation == "insert") {
-			var collection = db.collection(options.collection);
-			collection.insert(options.object, function(err, doc){
-				callback(err, doc);
-				db.close();
-			});
-		}
-		else if (options.operation == "remove") {
-			var collection = db.collection(options.collection);
-			collection.find(options.object, function(err, docs){
-				collection.remove(options.object, function(err2){
-					docs.toArray(callback);
-					db.close();
-				});
-			});
-		}
-		else if (options.operation == "update") {
-			var collection = db.collection(options.collection);
-			collection.update(options.object, options.values, options.options, function(err, doc){
-				callback(err, doc);
-				db.close();
-			});
+		else {
+			callback(error);
 		}
 	});
 }

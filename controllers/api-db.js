@@ -99,13 +99,13 @@ var __dbOp = function(options, callback){
 }
 
 module.exports = {
-	postDrop: function(request, response){
+	delete: function(request, response){
 		__dbOp({ db: request.db, operation: "dropdb" }, 
 		function(err, result){
 			response.send(utils.Misc.createResponse(result, err));
 		});
 	},
-	postCollectionDrop: function(request, response){
+	deleteCollection: function(request, response){
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "drop" }, 
 		function(err, docs){
 			response.send(utils.Misc.createResponse(docs, err));

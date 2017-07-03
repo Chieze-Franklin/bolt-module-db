@@ -100,10 +100,14 @@ var __dbOp = function(options, callback){
 
 module.exports = {
 	delete: function(request, response){
-		__dbOp({ db: request.db, operation: "dropdb" }, 
-		function(err, result){
-			response.send(utils.Misc.createResponse(result, err));
-		});
+		utils.Events.fire('app-db-dropping', { body: { app: request.db, db: request.db }, subscribers: [request.db] }, request.appToken, function(eventError, eventResponse){});
+		setTimeout(function(){
+			__dbOp({ db: request.db, operation: "dropdb" }, 
+			function(err, result){
+				utils.Events.fire('app-db-dropped', { body: { app: request.db, db: request.db } }, request.appToken, function(eventError, eventResponse){});
+				response.send(utils.Misc.createResponse(result, err));
+			});
+		}, 2000);
 	},
 	deleteCollection: function(request, response){
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "drop" }, 

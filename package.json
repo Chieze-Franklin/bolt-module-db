@@ -1,6 +1,6 @@
 {
   "name": "bolt-module-db",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Module to install /api/db routes in Bolt",
   "repository": {
     "type": "git",

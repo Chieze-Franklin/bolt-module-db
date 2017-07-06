@@ -16,7 +16,7 @@ var __dbOp = function(options, callback){
 				models.collection.find({ app: options.db }, function(collError, colls){
 					if (!utils.Misc.isNullOrUndefined(colls)) {
 						colls.forEach(function (coll) {
-							var collectionFullname = options.db + '-' + coll.name;
+							var collectionFullname = options.db + '/' + coll.name;
 							var collection = db.collection(collectionFullname);
 							collection.drop(function (err, result) {
 								//
@@ -28,7 +28,7 @@ var __dbOp = function(options, callback){
 				});
 			}
 			else {
-				var collectionFullname = options.db + '-' + options.collection;
+				var collectionFullname = options.db + '/' + options.collection;
 
 				if (options.operation == "drop") {
 					var collection = db.collection(collectionFullname);

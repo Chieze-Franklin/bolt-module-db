@@ -102,12 +102,17 @@ module.exports = {
 	delete: function(request, response){
 		__dbOp({ db: request.db, operation: "dropdb" }, 
 		function(err, result){
+			utils.Events.fire('app-db-dropped', 
+				{ body: { app: request.db, result: result }, subscribers: [request.db] }, 
+				request.appToken, function(eventError, eventResponse) {});
 			response.send(utils.Misc.createResponse(result, err));
 		});
 	},
 	deleteCollection: function(request, response){
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "drop" }, 
 		function(err, result){
+			utils.Events.fire('app-collection-dropped', { body: { app: request.db, collection: request.params.collection, result: result }, subscribers: [request.db] }, 
+				request.appToken, function(eventError, eventResponse) {});
 			response.send(utils.Misc.createResponse(result, err));
 		});
 	},
@@ -146,6 +151,8 @@ module.exports = {
 
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "insert", object: request.body.object }, 
 		function(err, docs){
+			utils.Events.fire('app-collection-inserted', { body: { app: request.db, collection: request.params.collection, result: docs }, subscribers: [request.db] }, 
+				request.appToken, function(eventError, eventResponse) {});
 			response.send(utils.Misc.createResponse(docs, err));
 		});
 	},
@@ -158,6 +165,8 @@ module.exports = {
 
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "remove", query: request.body.query || request.body.object || request.query }, 
 		function(err, docs){
+			utils.Events.fire('app-collection-removed', { body: { app: request.db, collection: request.params.collection, result: docs }, subscribers: [request.db] }, 
+				request.appToken, function(eventError, eventResponse) {});
 			response.send(utils.Misc.createResponse(docs, err));
 		});
 	},
@@ -171,6 +180,8 @@ module.exports = {
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "update", query: request.body.query || request.body.object || request.query, 
 			values: request.body.values, options: { upsert: request.body.upsert || false, multi: request.body.multi || false } }, 
 		function(err, docs){
+			utils.Events.fire('app-collection-replaced', { body: { app: request.db, collection: request.params.collection, result: docs }, subscribers: [request.db] }, 
+				request.appToken, function(eventError, eventResponse) {});
 			response.send(utils.Misc.createResponse(docs, err));
 		});
 	},
@@ -184,6 +195,8 @@ module.exports = {
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "update", query: request.body.query || request.body.object || request.query, 
 			values: { $set: request.body.values }, options: { upsert: request.body.upsert || false, multi: request.body.multi || false } }, 
 		function(err, docs){
+			utils.Events.fire('app-collection-updated', { body: { app: request.db, collection: request.params.collection, result: docs }, subscribers: [request.db] }, 
+				request.appToken, function(eventError, eventResponse) {});
 			response.send(utils.Misc.createResponse(docs, err));
 		});
 	}

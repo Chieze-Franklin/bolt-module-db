@@ -6,6 +6,7 @@ var utils = require("bolt-internal-utils");
 var fs = require('fs');
 var path = require("path");
 var mongodb = require('mongodb');
+var mongoose = require('mongoose');
 var superagent = require('superagent');
 
 var __dbOp = function(options, callback){
@@ -39,6 +40,9 @@ var __dbOp = function(options, callback){
 				}
 				else if (options.operation == "find") {
 					var collection = db.collection(collectionFullname);
+					if (!utils.Misc.isNullOrUndefined(options.query._id) && options.query._id.constructor == String) {
+						options.query._id = new mongoose.mongo.ObjectId(options.query._id);
+					}
 					collection.find(options.query, options.map, function(err, docs){
 						docs.toArray(callback);
 						db.close();
@@ -46,6 +50,9 @@ var __dbOp = function(options, callback){
 				}
 				else if (options.operation == "findone") {
 					var collection = db.collection(collectionFullname);
+					if (!utils.Misc.isNullOrUndefined(options.query._id) && options.query._id.constructor == String) {
+						options.query._id = new mongoose.mongo.ObjectId(options.query._id);
+					}
 					collection.findOne(options.query, options.map, function(err, doc){
 						callback(err, doc);
 						db.close();
@@ -78,6 +85,9 @@ var __dbOp = function(options, callback){
 					});
 					*/
 
+					if (!utils.Misc.isNullOrUndefined(options.query._id) && options.query._id.constructor == String) {
+						options.query._id = new mongoose.mongo.ObjectId(options.query._id);
+					}
 					collection.remove(options.query, function(err, result){
 						callback(err, result);
 						db.close();
@@ -85,6 +95,9 @@ var __dbOp = function(options, callback){
 				}
 				else if (options.operation == "update") {
 					var collection = db.collection(collectionFullname);
+					if (!utils.Misc.isNullOrUndefined(options.query._id) && options.query._id.constructor == String) {
+						options.query._id = new mongoose.mongo.ObjectId(options.query._id);
+					}
 					collection.update(options.query, options.values, options.options, function(err, doc){
 						callback(err, doc);
 						db.close();
@@ -117,11 +130,11 @@ module.exports = {
 		});
 	},
 	postCollectionFind: function(request, response){
-		if(utils.Misc.isNullOrUndefined(request.body.query) && utils.Misc.isNullOrUndefined(request.body.object)) {
+		/*if(utils.Misc.isNullOrUndefined(request.body.query) && utils.Misc.isNullOrUndefined(request.body.object) && utils.Misc.isEmptyObject(request.query)) {
 			var error = new Error(errors['710']);
 			response.end(utils.Misc.createResponse(null, error, 710));
 			return;
-		}
+		}*/
 
 		__dbOp({ db: request.db, collection: request.params.collection, operation: "find", query: request.body.query || request.body.object || request.query, 
 			map: request.body.map || request.body.projection || {} }, 
@@ -130,7 +143,7 @@ module.exports = {
 		});
 	},
 	postCollectionFindOne: function(request, response){
-		if(utils.Misc.isNullOrUndefined(request.body.query) && utils.Misc.isNullOrUndefined(request.body.object)) {
+		if(utils.Misc.isNullOrUndefined(request.body.query) && utils.Misc.isNullOrUndefined(request.body.object) && utils.Misc.isEmptyObject(request.query)) {
 			var error = new Error(errors['710']);
 			response.end(utils.Misc.createResponse(null, error, 710));
 			return;
